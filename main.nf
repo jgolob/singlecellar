@@ -86,7 +86,7 @@ process CombineCRout {
 
     """
     mkdir cellranger
-    for f in *.tgz; do tar -xzvfC cellranger "$f"; done
+    for f in *.tgz; do tar -xzvf  "\$f" -C cellranger/ ; done
     """
 }
 

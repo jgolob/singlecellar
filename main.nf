@@ -27,14 +27,10 @@ workflow SingleCellRNA {
 
     // trimgalore to clean up / trim
 
-    TrimGalore(
+    Cellranger_count(
         read_mainfest_ch.map{
             [it.specimen, file(it.R1), file(it.R2)]
-        }
-    )
-
-    Cellranger_count(
-        TrimGalore.out,
+        },
         cr_ref_tgz
     )
 
@@ -44,35 +40,6 @@ workflow SingleCellRNA {
     )
 
 
-}
-
-// Use trim_galore to handle adapters / etc
-process TrimGalore {
-    container "${container__trimgalore}"
-    label 'io_limited'
-    errorStrategy 'finish'
-
-    input:
-    tuple val(specimen), file(R1), file(R2)
-
-    output:
-    tuple val(specimen), file("${specimen}.R1.tg.fastq.gz"), file("${specimen}.R2.tg.fastq.gz")
-
-    """
-    set -e
-    cp ${R1} R1.fastq.gz
-    cp ${R2} R2.fastq.gz
-    trim_galore \
-    --gzip \
-    --cores ${task.cpus} \
-    --paired \
-    --fastqc \
-    R1.fastq.gz R2.fastq.gz
-    rm R1.fastq.gz
-    rm R2.fastq.gz
-    mv R1_val_1.fq.gz "${specimen}.R1.tg.fastq.gz"
-    mv R2_val_2.fq.gz "${specimen}.R2.tg.fastq.gz"
-    """
 }
 
 process Cellranger_count {

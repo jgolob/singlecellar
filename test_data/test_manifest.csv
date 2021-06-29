@@ -1,0 +1,3 @@
+specimen,R1,R2
+tiny_1,test_data/cellranger_tiny_fastq/tinygex_S1_L001_R1_001.fastq.gz,test_data/cellranger_tiny_fastq/tinygex_S1_L001_R2_001.fastq.gz
+tiny_2,test_data/cellranger_tiny_fastq/tinygex_S1_L001_R1_002.fastq.gz,test_data/cellranger_tiny_fastq/tinygex_S1_L001_R1_002.fastq.gz

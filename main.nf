@@ -64,6 +64,9 @@ process Cellranger_count {
 
     cellranger count \
     --id=${specimen} \
+    --disable-ui \
+    --localcores ${task.cpus} \
+    --localmem ${task.memory.toGiga()} \
     --fastqs=reads/ \
     --transcriptome=ref/
 

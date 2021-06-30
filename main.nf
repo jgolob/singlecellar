@@ -59,7 +59,8 @@ process Cellranger_count {
     mv ${R2} reads/${specimen}_S1_L001_R2_001.fastq.gz
 
     mkdir ref/
-    tar xzvf ${cr_ref} -C ref/
+    tar xzvf ${cr_ref} -C ref/ --strip-components=1
+    ls -l ref/
 
     cellranger count \
     --id=${specimen} \

@@ -20,26 +20,72 @@ params.output = './output'
 
 workflow SingleCellRNA {
     take:
-        read_mainfest_ch
+        read_mainfest
         cr_ref_tgz
 
     main:
 
     // trimgalore to clean up / trim
 
+    Cellranger_count_indexed(
+        read_mainfest.valid_paired_indexed.map{
+            [it.specimen, file(it.R1), file(it.R2), file(it.I1)]
+        },
+        cr_ref_tgz
+    )
+
     Cellranger_count(
-        read_mainfest_ch.map{
+        read_mainfest.valid_paired.map{
             [it.specimen, file(it.R1), file(it.R2)]
         },
         cr_ref_tgz
     )
 
     CombineCRout(
-        Cellranger_count.out
+        Cellranger_count.out.mix(
+            Cellranger_count_indexed.out
+        )
             .collect{ it[1] }
     )
 
 
+}
+
+process Cellranger_count_indexed {
+    container "${container__cellranger}"
+    label 'multithread'
+    errorStrategy 'finish'
+
+    input:
+    tuple val(specimen), path(R1), path(R2), path(I1)
+    path cr_ref
+
+    output:
+    tuple val(specimen), path("${specimen}_result.tgz")
+    """
+    mkdir reads/
+    mv ${R1} reads/${specimen}_S1_L001_R1_001.fastq.gz
+    mv ${R2} reads/${specimen}_S1_L001_R2_001.fastq.gz
+    mv ${I1} reads/${specimen}_S1_L001_I1_001.fastq.gz
+
+    mkdir ref/
+    tar xzvf ${cr_ref} -C ref/ --strip-components=1
+    ls -l ref/
+
+    cellranger count \
+    --id=${specimen} \
+    --disable-ui \
+    --no-bam \
+    --nosecondary \
+    --localcores ${task.cpus} \
+    --localmem ${task.memory.toGiga()} \
+    --fastqs=reads/ \
+    --transcriptome=ref/
+
+    tar czf ${specimen}_result.tgz ${specimen}/outs/* 
+    rm -r ${specimen}
+    rm -r ref/*
+    """
 }
 
 process Cellranger_count {
@@ -65,6 +111,8 @@ process Cellranger_count {
     cellranger count \
     --id=${specimen} \
     --disable-ui \
+    --no-bam \
+    --nosecondary \
     --localcores ${task.cpus} \
     --localmem ${task.memory.toGiga()} \
     --fastqs=reads/ \
@@ -117,9 +165,8 @@ def ReadManifest(manifest_file){
         header: true, 
         sep: ","
     ).branch{
-        //valid_paired_indexed:  (it.specimen != null) && (it.R1 != null ) && (it.R1 != "" ) && (!file(it.R1).isEmpty()) && (it.R2 != null ) && (it.R2 != "") && (!file(it.R2).isEmpty()) && (it.I1 != null ) && (it.I1 != "" ) && (!file(it.I1).isEmpty()) && (it.I2 != null ) && (it.I2 != "") && (!file(it.I2).isEmpty())
+        valid_paired_indexed:  (it.specimen != null) && (it.R1 != null ) && (it.R1 != "" ) && (!file(it.R1).isEmpty()) && (it.R2 != null ) && (it.R2 != "") && (!file(it.R2).isEmpty()) && (it.I1 != null ) && (it.I1 != "" ) && (!file(it.I1).isEmpty())
         valid_paired:  (it.specimen != null) && (it.R1 != null ) && (it.R1 != "" ) && (!file(it.R1).isEmpty()) && (it.R2 != null ) && (it.R2 != "") && (!file(it.R2).isEmpty())
-        //valid_unpaired:  (it.specimen != null) && (it.R1 != null ) && (it.R1 != "" ) && (!file(it.R1).isEmpty())
         other: true
     }
 }
@@ -138,7 +185,7 @@ workflow {
     )
 
     SingleCellRNA(
-        manifest.valid_paired,
+        manifest,
         file(params.cr_ref)
     )
 

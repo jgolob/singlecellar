@@ -20,7 +20,8 @@ params.output = './output'
 
 workflow SingleCellRNA {
     take:
-        read_mainfest
+        index_paired_ch
+        paired_ch
         cr_ref_tgz
 
     main:
@@ -28,14 +29,14 @@ workflow SingleCellRNA {
     // trimgalore to clean up / trim
 
     Cellranger_count_indexed(
-        read_mainfest.valid_paired_indexed.map{
+        index_paired_ch.map{
             [it.specimen, file(it.R1), file(it.R2), file(it.I1)]
         },
         cr_ref_tgz
     )
 
     Cellranger_count(
-        read_mainfest.valid_paired.map{
+        paired_ch.map{
             [it.specimen, file(it.R1), file(it.R2)]
         },
         cr_ref_tgz
@@ -185,7 +186,8 @@ workflow {
     )
 
     SingleCellRNA(
-        manifest,
+        manifest.valid_paired_indexed,
+        manifest.valid_paired
         file(params.cr_ref)
     )
 

@@ -20,8 +20,8 @@ params.output = './output'
 
 workflow SingleCellRNA {
     take:
-        index_paired_ch,
-        paired_ch,
+        index_paired_ch
+        paired_ch
         cr_ref_tgz
 
     main:
@@ -187,7 +187,7 @@ workflow {
 
     SingleCellRNA(
         manifest.valid_paired_indexed,
-        manifest.valid_paired
+        manifest.valid_paired,
         file(params.cr_ref)
     )
 

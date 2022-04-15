@@ -20,8 +20,8 @@ params.output = './output'
 
 workflow SingleCellRNA {
     take:
-        index_paired_ch
-        paired_ch
+        index_paired_ch,
+        paired_ch,
         cr_ref_tgz
 
     main:

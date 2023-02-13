@@ -64,10 +64,10 @@ process Cellranger_count_indexed {
     output:
     tuple val(specimen), path("${specimen}_result.tgz")
     """
-    mkdir reads/
-    mv ${R1} reads/${specimen}_S1_L001_R1_001.fastq.gz
-    mv ${R2} reads/${specimen}_S1_L001_R2_001.fastq.gz
-    mv ${I1} reads/${specimen}_S1_L001_I1_001.fastq.gz
+    mkdir -p reads/
+    cp ${R1} reads/${specimen}_S1_L001_R1_001.fastq.gz
+    cp ${R2} reads/${specimen}_S1_L001_R2_001.fastq.gz
+    cp ${I1} reads/${specimen}_S1_L001_I1_001.fastq.gz
 
     mkdir ref/
     tar xzvf ${cr_ref} -C ref/ --strip-components=1
@@ -101,9 +101,9 @@ process Cellranger_count {
     output:
     tuple val(specimen), path("${specimen}_result.tgz")
     """
-    mkdir reads/
-    mv ${R1} reads/${specimen}_S1_L001_R1_001.fastq.gz
-    mv ${R2} reads/${specimen}_S1_L001_R2_001.fastq.gz
+    mkdir -p reads/
+    cp ${R1} reads/${specimen}_S1_L001_R1_001.fastq.gz
+    cp ${R2} reads/${specimen}_S1_L001_R2_001.fastq.gz
 
     mkdir ref/
     tar xzvf ${cr_ref} -C ref/ --strip-components=1

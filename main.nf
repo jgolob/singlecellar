@@ -9,7 +9,7 @@
 nextflow.enable.dsl=2
 
 // containers
-container__cellranger = 'golob/cellranger:6.0.2A'
+container__cellranger = 'golob/cellranger:7.10'
 container__trimgalore = 'quay.io/biocontainers/trim-galore:0.6.6--0'
 
 // Default parameters
